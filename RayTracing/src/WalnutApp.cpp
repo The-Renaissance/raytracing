@@ -5,6 +5,8 @@
 #include "Walnut/Random.h"
 #include "Walnut/Timer.h"
 
+#include "Geometry.h"
+
 using namespace Walnut;
 
 class ExampleLayer : public Walnut::Layer
@@ -40,9 +42,16 @@ public:
 			m_ImageData = new uint32_t[m_ViewportWidth * m_ViewportHeight];
 		}
 
+		auto upperLeftCorner = m_ViewportCenter + glm::vec3{ 0.0f, -(m_ViewportWidth / 2.0f), m_ViewportHeight / 2.0f };
 		for (size_t i = 0; i < m_ViewportHeight * m_ViewportWidth; ++i)
 		{
-			m_ImageData[i] = Random::UInt();
+			auto coordinate = upperLeftCorner + glm::vec3{ 0.0f, static_cast<float>(i % m_ViewportWidth), -static_cast<float>(i / m_ViewportWidth) };
+			if (is_sphere_hit(Ray{ m_camera, glm::normalize(coordinate - m_camera) }, m_sphere))
+			{
+				m_ImageData[i] = 0x000000ff; // Red ff0000
+			} else {
+				m_ImageData[i] = 0x00ffffff; // White
+			}
 			m_ImageData[i] |= 0xff000000;
 		}
 
@@ -54,6 +63,10 @@ private:
 	std::shared_ptr<Image> m_Image;
 	uint32_t* m_ImageData = nullptr;
 	uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
+
+	// Scene
+	Sphere m_sphere{ glm::vec3{10, 0, 0}, 495.f };
+	glm::vec3 m_camera = glm::vec3{ -500, 0, 0 }, m_ViewportCenter = glm::vec3{ -490,0,0 };
 
 	float m_ElapsedTime = 0.0f;
 };
