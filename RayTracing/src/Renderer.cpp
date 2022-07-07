@@ -38,18 +38,21 @@ uint32_t Renderer::PerPixel(glm::vec2 coordinate)
 	
 	glm::vec3 ray_origin{ 0.0f, 0.0f, 2.0f };
 	glm::vec3 ray_direction{ coordinate.x, coordinate.y, -1.0f };
+	glm::vec3 sphere_origin{ 0.5f, 0.5f, -1.0f };
 	float radius = 0.5f;
 
-	// (bx ^ 2 + by ^ 2 + bz ^ 2)t^2 + 2(axbx + ayby + azbz)t + (ax^2 + ay^2 +  - r^2) = 0
+	// b*bt^2 + 2b*(a-o)t + a*a-2(a*o) + o*o - r^2 = 0
 	// where
 	// a = ray origin
 	// b = ray direction
+	// o = sphere origin
 	// r = radius
 	// t = hit distance
 
 	float a = glm::dot(ray_direction, ray_direction);
-	float b = 2 * glm::dot(ray_origin, ray_direction);
-	float c = glm::dot(ray_origin, ray_origin) - radius * radius;
+	float b = 2 * glm::dot(ray_direction, ray_origin - sphere_origin);
+	float c = glm::dot(ray_origin, ray_origin) - 2 * glm::dot(ray_origin, sphere_origin)
+		+ glm::dot(sphere_origin, sphere_origin) - radius * radius;
 
 	// b ^ 2 - 4ac
 	float discriminant = b * b - 4 * a * c;
