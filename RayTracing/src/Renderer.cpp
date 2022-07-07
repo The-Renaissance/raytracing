@@ -10,6 +10,14 @@ void Renderer::Render()
 		{
 			glm::vec2 coord = { static_cast<float>(x) / m_FinalImage->GetWidth(),  static_cast<float>(y) / m_FinalImage->GetHeight() };
 			coord = coord * 2.0f - 1.0f;
+			// scale x uv coordinate according to aspect ratio
+			if (m_FinalImage->GetWidth() > m_FinalImage->GetHeight())
+			{
+				coord.y *= static_cast<float>(m_FinalImage->GetHeight()) / static_cast<float>(m_FinalImage->GetWidth());
+			} else if (m_FinalImage->GetWidth() < m_FinalImage->GetHeight()) 
+			{
+				coord.x *= static_cast<float>(m_FinalImage->GetWidth()) / static_cast<float>(m_FinalImage->GetHeight());				
+			}
 			m_ImageData[y * m_FinalImage->GetWidth() + x] = PerPixel(coord);
 
 		}
@@ -38,7 +46,7 @@ uint32_t Renderer::PerPixel(glm::vec2 coordinate)
 	
 	glm::vec3 ray_origin{ 0.0f, 0.0f, 2.0f };
 	glm::vec3 ray_direction{ coordinate.x, coordinate.y, -1.0f };
-	glm::vec3 sphere_origin{ 0.5f, 0.5f, -1.0f };
+	glm::vec3 sphere_origin{ 0.0f, 0.5f, -1.0f };
 	float radius = 0.5f;
 
 	// b*bt^2 + 2b*(a-o)t + a*a-2(a*o) + o*o - r^2 = 0
